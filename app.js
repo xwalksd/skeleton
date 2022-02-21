@@ -1,4 +1,5 @@
 const express = require('express');
+const pokemonService = require('./lib/PokemonService');
 
 let app = express();
 
@@ -14,7 +15,52 @@ app.use(express.static(__dirname + '/public'));
 
 
 app.get('/', function(req, res) {
-	res.render('home');
+	if(!req.query.type){
+		var pokemon = pokemonService.getAllPokemon();
+	}
+	else{
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.type.includes(req.query.type));
+	}
+	
+	res.render('home', {
+		pokemon: pokemon
+	});
+});
+
+app.get('/api/cards', function(req,res){
+	
+	if(!req.query.type){
+		var pokemon = pokemonService.getAllPokemon();
+		res.send(pokemon);
+	}
+	else{
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.type.includes(req.query.type));
+		res.send(pokemon);
+	}
+	
+});
+
+app.get('/api/cards/trade', function(req,res){
+	if(!req.query.type){
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.willTrade == true);
+		res.send(pokemon);
+	}
+	else{
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.willTrade == true && pokemon.type.includes(req.query.type));
+		res.send(pokemon);
+	}
+});
+
+app.get('/api/cards/sell', function(req,res){
+	if(!req.query.type){
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.price != null);
+		res.send(pokemon);
+	}
+	else{
+		var pokemon = pokemonService.getAllPokemon().filter(pokemon => pokemon.price != null && pokemon.type.includes(req.query.type));
+		res.send(pokemon);
+	}
+	
 });
 
 // 404 catch-all handler (middleware)
